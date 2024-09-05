@@ -3,12 +3,14 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class App {
+    // Static object.
+    static Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        // Student names
-        ArrayList<String> names = new ArrayList<>();
-        // Student grades
-        ArrayList<Double> grades = new ArrayList<>();
+
+        // Students array
+        ArrayList<Student> students = new ArrayList<>();
+
         // Run System
         System.out.println("--- Student Management System ---");
 
@@ -16,49 +18,65 @@ public class App {
             System.out.println("\n1. Add a new student");
             System.out.println("2. Display all students and their grades");
             System.out.println("3. Calculate the average grade");
-            System.out.println("4. Exit");
+            System.out.println("4. Delete a student.");
+            System.out.println("5. Exit");
             System.out.print("Choose an option: ");
-            int option = scanner.nextInt();
-            scanner.nextLine();
 
-            switch (option) {
-                case 1:
-                    addNewStudent(names, grades);
-                    break;
-                case 2:
-                    displayStudents(names, grades);
-                    break;
-                case 3:
-                    try {
-                        double avg = getAvg(grades);
-                        System.out.printf("Average Grade: %.2f%n", avg);
-                    } catch (Exception e) {
-                        System.out.println("Add some students first.");
-                    }
-                    break;
-                case 4:
-                    System.out.println("Exiting the system. Goodbye!");
-                    System.exit(0);
-                default:
-                    System.out.println("Not a valid option. Please try again.");
-                    break;
+            try {
+                int option = scanner.nextInt();
+                scanner.nextLine();
+                switch (option) {
+                    case 1:
+                        addNewStudent(students);
+                        break;
+                    case 2:
+                        Student.displayStudents(students);
+                        break;
+                    case 3:
+                        try {
+                            double avg = Student.getAvg(students);
+                            System.out.printf("Average Grade: %.2f%n", avg);
+                        } catch (Exception e) {
+                            System.out.println("Add some students first.");
+                        }
+                        break;
+                    case 4:
+                        System.out.print("Enter student name: ");
+                        String name = scanner.nextLine();
+                        deleteStudent(name, students);
+                        break;
+                    case 5:
+                        System.out.println("Exiting the system. Goodbye!");
+                        System.exit(0);
+                    default:
+                        System.out.println("Not a valid option. Please try again.");
+                        break;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error: The option must be a number.");
+                scanner.nextLine();
             }
+
         }
     }
 
     // Add new student method
-    public static void addNewStudent(ArrayList<String> names, ArrayList<Double> grades) {
+    public static void addNewStudent(ArrayList<Student> students) {
+
         System.out.println("---Add New Student---");
-        Scanner scanner = new Scanner(System.in);
         try {
+
+            // Request name.
             System.out.print("Enter student name: ");
             String name = scanner.nextLine();
 
+            // Request grade.
             System.out.print("Enter student grade: ");
             double grade = scanner.nextDouble();
 
-            names.add(name);
-            grades.add(grade);
+            // Add new Student.
+            Student student = new Student(name, grade);
+            students.add(student);
 
         } catch (InputMismatchException e) {
             System.out.println("Error: The grade must be a number.");
@@ -66,29 +84,22 @@ public class App {
         }
     }
 
-    // Display all students method
-    public static void displayStudents(ArrayList<String> names, ArrayList<Double> grades) {
-        System.out.println("---Display All Students---");
-        if (names.isEmpty()) {
-            System.out.println("No students have been added yet.");
-        } else {
-            for (int i = 0; i < names.size(); i++) {
-                System.out.println("\nStudent number " + (i + 1) + ":");
-                System.out.println("Student name: " + names.get(i) + "\nStudent grade: " + grades.get(i));
+    // Delete student method.
+    public static void deleteStudent(String name, ArrayList<Student> students) {
+
+        boolean found = false;
+        for (Student student : students) {
+            if (student.getName().equalsIgnoreCase(name)) {
+                students.remove(student);
+                System.out.println("Delete student success!.");
+                found = true;
+                break;
             }
+        }
+
+        if (!found) {
+            System.out.println("Student not found!.");
         }
     }
 
-    // Calculate the average grade
-    public static double getAvg(ArrayList<Double> grades) {
-        System.out.println("---Get AVG---");
-        if (grades.isEmpty()) {
-            throw new IllegalStateException("Cannot calculate average - no grades available.");
-        }
-        double total = 0;
-        for (Double grade : grades) {
-            total += grade;
-        }
-        return total / grades.size();
-    }
 }
